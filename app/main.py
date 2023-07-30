@@ -91,12 +91,6 @@ def post_login(username: str = Form(), password: str = Form(), db: Session = Dep
         }
 
 
-@app.get("/get/users/", tags=["Users"])
-def get_users(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)):
-    users = users_repository.get_users(db=db)
-    return users
-
-
 @app.get("/auth/users/me",tags=["Profile"])
 def get_profile(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)):
     user_id = decode(token)
