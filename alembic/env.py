@@ -9,6 +9,7 @@ from app.database import Base
 from app.repositories.users_repository import User
 from app.repositories.announcement_repository import Announcement
 from app.repositories.comments_repository import Comment
+from app.repositories.favorites_repository import Favorites
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
