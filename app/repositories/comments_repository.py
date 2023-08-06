@@ -51,7 +51,7 @@ class CommentsRepository:
     def get_by_id(self, id: int, db: Session) -> Comment:
         return db.query(Comment).filter(Comment.id==id).first()
 
-    def get_by_comment_announce(self, comment_id: int, announce_id: int, db: Session):
+    def get_comment_by_announce(self, comment_id: int, announce_id: int, db: Session):
         return db.query(Comment).filter(Comment.id==comment_id, Comment.announce_id==announce_id).first()
 
     def get_by_announce_id(self, announce_id: int, db: Session):

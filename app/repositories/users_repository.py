@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship, Session
 from ..database import Base
 from .announcement_repository import Announcement
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -17,6 +18,7 @@ class User(Base):
 
     announcements = relationship("Announcement", back_populates="owner")
     comments = relationship("Comment", back_populates="parent")
+    favorites = relationship("Favorites", back_populates="owner", cascade="all, delete", passive_deletes=True,)
 
 
 @define
@@ -57,7 +59,6 @@ class UsersRepository:
         db_user = self.get_by_id(user_id=user_id,db=db)
         db.delete(db_user)
         db.commit()
-
 
     def update_user(self, user_id: int, user: UserUpdate, db: Session):
         db_user = self.get_by_id(user_id=user_id, db=db)

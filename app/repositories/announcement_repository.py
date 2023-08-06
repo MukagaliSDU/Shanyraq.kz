@@ -1,5 +1,7 @@
+from typing import List, Type
+
 from attr import define
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, desc
 from sqlalchemy.orm import relationship, Session
 
 from ..database import Base
@@ -19,7 +21,7 @@ class Announcement(Base):
 
     owner = relationship("User", back_populates="announcements")
     comments = relationship("Comment", back_populates="announce")
-
+    favorites = relationship('Favorites', back_populates="announcements", cascade="all, delete")
 
 @define
 class CreateAnnounce:
@@ -59,9 +61,27 @@ class AnnouncementsRepository:
         db.refresh(db_announce)
         return db_announce.id
 
+    def search_announce(self, db: Session, limit: int = 10, offset: int = 0,
+                        _type: str = None, rooms_count: int = None,
+                        price_from: int = None, price_until: int = None):
+        filters = []
+        if _type is not None:
+            filters.append(Announcement.type == _type)
+        if rooms_count is not None:
+            filters.append(Announcement.rooms_count == int(rooms_count))
+        if price_from is not None:
+            filters.append(Announcement.price >= price_from)
+        if price_until is not None:
+            filters.append(Announcement.price <= price_until)
+        query = db.query(Announcement)
+        if filters:
+            query = query.filter(*filters)
+        total = query.count()
+        query = query.order_by(desc(Announcement.id)).limit(limit).offset(offset).all()
+        return {"total": total, "query": query}
+    
     def get_by_id(self, id: int, db: Session) -> Announcement:
         return db.query(Announcement).filter(Announcement.id==id).first()
-
 
     def update_announce(self, id: int, shanyrak: UpdateAnnounce, db: Session):
         db_announce = self.get_by_id(id=id, db=db)
@@ -77,6 +97,8 @@ class AnnouncementsRepository:
         return db_announce
 
     def delete_announce(self, id: int, db: Session):
-        db_announce = self.get_by_id(id=id, db=db)
-        db.delete(db_announce)
-        db.commit()
+            db_announce = self.get_by_id(id=id, db=db)
+            db.delete(db_announce)
+            db.commit()
+
+    
